@@ -1376,6 +1376,34 @@ public:
         }
     }
 
+    Element * search_decrementing_bottom_up(unsigned int s) {
+        db<Lists>(TRC) << "Grouping_List::search_decrementing_bottom_up(s=" << s << ")" << endl;
+        print_head();
+        print_tail();
+
+        Element * e = search_size(s);
+        if (e) {
+            _grouped_size -= s;
+
+            Object_Type * new_addr = e->object() + s / sizeof(Object_Type);
+            Element * right_shifted_element = new (new_addr) Element(new_addr, e->size() - s);
+
+            if (right_shifted_element->size()) {
+                if (e == head()) {
+                    this->insert_head(right_shifted_element);
+                } else if (e == tail()) {
+                    this->insert_tail(right_shifted_element);
+                } else {
+                    this->insert(right_shifted_element, e->prev(), e->next());
+                }
+            }
+
+            remove(e);
+        }
+
+        return e;
+    }
+
     Element * search_decrementing(unsigned int s) {
         db<Lists>(TRC) << "Grouping_List::search_decrementing(s=" << s << ")" << endl;
         print_head();
