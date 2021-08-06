@@ -67,8 +67,7 @@ public:
         db<Heaps>(TRC) << "Heap::free(this=" << this << ",ptr=" << ptr << ",bytes=" << bytes << ")" << endl;
 
         if(ptr && (bytes >= sizeof(Element))) {
-            char * p = reinterpret_cast<char *>(ptr);
-            Element * e = new (p + bytes - sizeof(Element)) Element(p, bytes);
+            Element * e = new (ptr) Element(reinterpret_cast<char *>(ptr), bytes);
             Element * m1, * m2;
             insert_merging(e, &m1, &m2);
         }
