@@ -31,12 +31,12 @@ struct Memory_Map: public Cortex_Memory_Map
 
         // Logical Address Space
         SYS_CODE                = Traits<Machine>::SYS_CODE,
-        SYS_INFO                = NOT_USED,
-        SYS_DATA                = Traits<Machine>::SYS_CODE,
-        SYS_PT                  = NOT_USED,
-        SYS_PD                  = NOT_USED,
-        SYS_STACK               = NOT_USED,
-        SYS_HEAP                = NOT_USED
+        SYS_INFO                = Traits<Machine>::SYS + 0x00004000,
+        SYS_DATA                = Traits<Machine>::SYS_DATA,
+        SYS_PT                  = Traits<Machine>::SYS + 0x00002000,
+        SYS_PD                  = Traits<Machine>::SYS + 0x00003000,
+        SYS_STACK               = Traits<Machine>::SYS + 0x00300000,
+        SYS_HEAP                = Traits<Machine>::SYS + 0x00400000
     };
 };
 

@@ -36,21 +36,21 @@ template<> struct Traits<Machine>: public Traits<Machine_Common>
 
     // Logical Memory Map
     static const unsigned int BOOT              = NOT_USED;
-    static const unsigned int IMAGE             = NOT_USED;
-    static const unsigned int SETUP             = NOT_USED;
-    static const unsigned int INIT              = NOT_USED;
+    static const unsigned int IMAGE             = 0x00008000;
+    static const unsigned int SETUP             = 0x00100000;
+    static const unsigned int INIT              = 0x00200000;
 
     static const unsigned int APP_LOW           = MEM_BASE;
-    static const unsigned int APP_CODE          = VECTOR_TABLE;
-    static const unsigned int APP_DATA          = VECTOR_TABLE;
-    static const unsigned int APP_HIGH          = MEM_TOP;
+    static const unsigned int APP_CODE          = APP_LOW;
+    static const unsigned int APP_DATA          = APP_LOW + 4 * 1024 * 1024;
+    static const unsigned int APP_HIGH          = 0x0fffffff;
 
-    static const unsigned int PHY_MEM           = 0x40000000; // 2 GB
-    static const unsigned int IO                = NOT_USED;     // this machine only supports the library architecture of EPOS
+    static const unsigned int PHY_MEM           = 0x80000000; // 2 GB
+    static const unsigned int IO                = 0xf0000000;
 
-    static const unsigned int SYS               = 0xff700000;   // 4 GB - 9 MB
-    static const unsigned int SYS_CODE          = 0xff700000;
-    static const unsigned int SYS_DATA          = 0xff740000;
+    static const unsigned int SYS               = 0xfff40000;   // 4 GB - 9 MB
+    static const unsigned int SYS_CODE          = SYS + 0x00100000;
+    static const unsigned int SYS_DATA          = SYS + 0x00200000;
 
     // Default Sizes and Quantities
     static const unsigned int STACK_SIZE        = 16 * 1024;
