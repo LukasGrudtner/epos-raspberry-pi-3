@@ -63,8 +63,8 @@ void IC::dispatch(unsigned int i)
         db<IC>(TRC) << "IC::dispatch(i=" << id << ")" << endl;
 
     assert(id < INTS);
-    if(_eoi_vector[id])
-        _eoi_vector[id](id);
+//    if(_eoi_vector[id])
+//        _eoi_vector[id](id);
 
     CPU::int_enable();
 
@@ -77,8 +77,8 @@ void IC::eoi(unsigned int id)
         db<IC>(TRC) << "IC::eoi(i=" << id << ")" << endl;
 
     assert(id < INTS);
-    if(_eoi_vector[id])
-        _eoi_vector[id](id);
+//    if(_eoi_vector[id])
+//        _eoi_vector[id](id);
 }
 
 void IC::int_not(Interrupt_Id i)
