@@ -1,5 +1,3 @@
-// EPOS Raspberry Pi3 (Cortex-A53) SETUP
-
 #include <system/config.h>
 #include <architecture.h>
 #include <machine.h>
@@ -379,7 +377,7 @@ void Setup::build_pmm()
     // = NP/NPTE_PT * sizeof(Page)
     // NP = size of I/O address space in pages
     // NPTE_PT = number of page table entries per page table
-    top_page -= MMU::pages(si->bm.mio_top - si->bm.mio_base);
+    top_page -= MMU::page_tables(MMU::pages(si->bm.mio_top - si->bm.mio_base));
     si->pmm.io_pts = top_page * sizeof(Page);
 
     // Page tables to map the first APPLICATION code segment
@@ -420,7 +418,7 @@ void Setup::build_pmm()
     si->pmm.sys_stack = top_page * sizeof(Page);
 
     // Free chunks (passed to MMU::init)
-    si->pmm.free1_base = si->bm.mem_base + EPOS::S::Traits<EPOS::S::Machine>::VECTOR_TABLE; // vector table should not be deleted!
+    si->pmm.free1_base = si->bm.mem_base; // vector table should not be deleted!
     si->pmm.free1_top = top_page * sizeof(Page); // we will free the stack here
     db<Setup>(TRC) << "Top page = " << top_page << endl;
 
@@ -516,21 +514,14 @@ void Setup::setup_sys_pt()
     // System Page Directory -- ??? Pages for directory
     sys_pt[MMU::page(SYS_PD)] = MMU::phy2pte(si->pmm.sys_pd, Flags::SYS);
 
-    // Calculate the number of page tables needed to map the physical memory
-    unsigned int mem_size = MMU::pages(si->bm.mem_top - si->bm.mem_base);
-    int n_pts = MMU::page_tables(mem_size);
-
     // SYSTEM code
-    unsigned int sys_code_size = MMU::pages(si->lm.sys_code_size);
-    configure_page_table_descriptors(sys_pt, si->pmm.sys_code, sys_code_size, n_pts, Flags::SYS);
+    configure_page_table_descriptors(sys_pt, si->pmm.sys_code, si->lm.sys_code_size, MMU::pages(si->lm.sys_code_size), Flags::SYS);
 
     // SYSTEM data
-    unsigned int sys_data_size = MMU::pages(si->lm.sys_data_size);
-    configure_page_table_descriptors(sys_pt, si->pmm.sys_data, sys_data_size, n_pts, Flags::SYS);
+    configure_page_table_descriptors(sys_pt, si->pmm.sys_data, si->lm.sys_data_size, MMU::pages(si->lm.sys_data_size), Flags::SYS);
 
     // SYSTEM stack (used only during init and for the ukernel model)
-    unsigned int sys_stack_size = MMU::pages(si->lm.sys_stack_size);
-    configure_page_table_descriptors(sys_pt, si->pmm.sys_stack, sys_stack_size, n_pts, Flags::SYS);
+    configure_page_table_descriptors(sys_pt, si->pmm.sys_stack, si->lm.sys_stack_size, MMU::pages(si->lm.sys_stack_size), Flags::SYS);
 
     db<Setup>(TRC) << "SYS_PT=" << *reinterpret_cast<Page_Table *>(sys_pt) << endl;
 }
@@ -550,17 +541,11 @@ void Setup::setup_app_pt()
     memset(app_code_pt, 0, MMU::page_tables(MMU::pages(si->lm.app_code_size)) * sizeof(Page));
     memset(app_data_pt, 0, MMU::page_tables(MMU::pages(si->lm.app_data_size)) * sizeof(Page));
 
-    // Calculate the number of page tables needed to map the physical memory
-    unsigned int mem_size = MMU::pages(si->bm.mem_top - si->bm.mem_base);
-    int n_pts = MMU::page_tables(mem_size);
-
     // APPLICATION code
-    unsigned int app_code_size = MMU::pages(si->lm.app_code_size);
-    configure_page_table_descriptors(app_code_pt, si->lm.app_code, app_code_size, n_pts, Flags::APP);
+    configure_page_table_descriptors(app_code_pt, si->pmm.app_code, si->lm.app_code_size, MMU::pages(si->lm.app_code_size), Flags::APP);
 
     // APPLICATION data (contains stack, heap and extra)
-    unsigned int app_data_size = MMU::pages(si->lm.app_data_size);
-    configure_page_table_descriptors(app_data_pt, si->lm.app_data, app_data_size, n_pts, Flags::APP);
+    configure_page_table_descriptors(app_data_pt, si->pmm.app_data, si->lm.app_data_size, MMU::pages(si->lm.app_data_size), Flags::APP);
 
     db<Setup>(INF) << "APPC_PT=" << *reinterpret_cast<Page_Table *>(app_code_pt) << endl;
     db<Setup>(INF) << "APPD_PT=" << *reinterpret_cast<Page_Table *>(app_data_pt) << endl;
@@ -603,6 +588,7 @@ void Setup::setup_sys_pd()
  
     // Map the whole physical memory into the page tables pointed by phy_mem_pts
     PT_Entry * pts = reinterpret_cast<PT_Entry *>(si->pmm.phy_mem_pts);
+
     configure_page_table_descriptors(pts, si->bm.mem_base, mem_size, n_pts, Flags::SYS);
 
     // Attach the portion of the physical memory used by Setup at SETUP
