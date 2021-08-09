@@ -358,7 +358,7 @@ void Setup::build_pmm()
     // on which the application's logical and physical address spaces match.
     Phy_Addr top_page = MMU::pages(si->bm.mem_top);
 
-    // System Page Directory (4 x sizeof(Page)) -- up to 4k PD entries of 32 bits, moreover we need a page aligned to 16 KB 
+    // System Page Directory (4 x sizeof(Page)) -- up to 4k PD entries of 32 bits, moreover we need a page aligned to 16 KB
     top_page -= 4;
     si->pmm.sys_pd = top_page * sizeof(Page);
 
@@ -393,7 +393,7 @@ void Setup::build_pmm()
         top_page -= 1;
     si->pmm.sys_info = top_page * sizeof(Page);
 
-    // SYSTEM code segment -- For this test, everything will be in physical memory 
+    // SYSTEM code segment -- For this test, everything will be in physical memory
     top_page -= MMU::pages(si->lm.sys_code_size);
     si->pmm.sys_code = top_page * sizeof(Page);
 
@@ -474,8 +474,8 @@ void Setup::say_hi()
 
 void Setup::configure_page_table_descriptors(PT_Entry * pts, Phy_Addr base, unsigned int size, unsigned int n_pts, Flags flag, bool print) {
     unsigned int last_addr = 0;
-    // n_pts equal to the number of PDs necessary to map the requested PTEs (given by size) from the memory base 
-    // Each PTE maps one Page (4k), 
+    // n_pts equal to the number of PDs necessary to map the requested PTEs (given by size) from the memory base
+    // Each PTE maps one Page (4k),
     // Each Page can have 256 PTEs
     // Thus, for each PD, map 256 pte until all requested ptes are mapped
     for(unsigned int curr_page = 0; curr_page < n_pts; curr_page++) {
@@ -585,7 +585,7 @@ void Setup::setup_sys_pd()
     // Calculate the number of page tables needed to map the physical memory
     unsigned int mem_size = MMU::pages(si->bm.mem_top - si->bm.mem_base);
     int n_pts = MMU::page_tables(mem_size);
- 
+
     // Map the whole physical memory into the page tables pointed by phy_mem_pts
     PT_Entry * pts = reinterpret_cast<PT_Entry *>(si->pmm.phy_mem_pts);
 
@@ -874,6 +874,6 @@ void _setup()
     CPU::invalidate_all_branch_predictors();
     CPU::invalidate_tlb();
     CPU::actlr(CPU::actlr() | CPU::DCACHE_PREFE); // enable Dside prefetch
-    
+
     Setup setup;
 }
