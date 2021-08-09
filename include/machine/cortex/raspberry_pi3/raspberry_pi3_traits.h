@@ -36,9 +36,9 @@ template<> struct Traits<Machine>: public Traits<Machine_Common>
 
     // Logical Memory Map
     static const unsigned int BOOT              = NOT_USED;
-    static const unsigned int IMAGE             = 0x00008000;
-    static const unsigned int SETUP             = 0x00100000;
-    static const unsigned int INIT              = 0x00200000;
+    static const unsigned int IMAGE             = 0x3ceeffff;
+    static const unsigned int SETUP             = VECTOR_TABLE;
+    static const unsigned int INIT              = 0x3deeffff;
 
     static const unsigned int APP_LOW           = MEM_BASE;
     static const unsigned int APP_CODE          = APP_LOW;
