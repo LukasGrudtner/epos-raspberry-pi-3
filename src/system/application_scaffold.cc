@@ -19,3 +19,6 @@ OStream cerr;
 
 __END_API
 
+extern "C" {
+    void __pre_main() {}
+}
