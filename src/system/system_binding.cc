@@ -1,6 +1,5 @@
 // EPOS System Binding
 
-#include <utility/spin.h>
 #include <machine.h>
 #include <process.h>
 
@@ -41,3 +40,4 @@ extern "C" {
             _panic();
     }
 }
+

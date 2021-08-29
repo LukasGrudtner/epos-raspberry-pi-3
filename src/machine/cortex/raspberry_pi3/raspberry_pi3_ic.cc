@@ -224,7 +224,10 @@ void IC::undefined_instruction()
 void IC::software_interrupt()
 {
     db<IC>(ERR) << "Software interrupt" << endl;
-    Machine::panic();
+
+    CPU::syscalled();
+
+    // Machine::panic();
 }
 
 void IC::prefetch_abort()
