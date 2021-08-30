@@ -20,6 +20,7 @@ private:
     static const unsigned int RAM_BASE = Memory_Map::RAM_BASE;
     static const unsigned int APP_LOW = Memory_Map::APP_LOW;
     static const unsigned int PHY_MEM = Memory_Map::PHY_MEM;
+    static const unsigned int SYS = Memory_Map::SYS;
 
 public:
     // Page Flags
@@ -87,13 +88,13 @@ public:
         unsigned int _flags;
     };
 
-    // Page_Table
-    class Page_Table  {
+    template<unsigned int ENTRIES>
+    class _Page_Table  {
     public:
-        Page_Table() {}
+        _Page_Table() {}
 
         PT_Entry & operator[](unsigned int i) { return _entry[i]; }
-        Page_Table & log() { return *static_cast<Page_Table *>(phy2log(this)); }
+        _Page_Table & log() { return *static_cast<_Page_Table *>(phy2log(this)); }
 
         void map(int from, int to, Page_Flags flags, Color color) {
             Phy_Addr * addr = alloc(to - from, color);
@@ -127,7 +128,7 @@ public:
             }
         }
 
-        friend OStream & operator<<(OStream & os, Page_Table & pt) {
+        friend OStream & operator<<(OStream & os, _Page_Table & pt) {
             os << "{\n";
             int brk = 0;
             for(unsigned int i = 0; i < PT_ENTRIES; i++)
@@ -141,11 +142,11 @@ public:
         }
 
     private:
-        PT_Entry _entry[PT_ENTRIES]; // the Phy_Addr in each entry passed through phy2pte()
+        PT_Entry _entry[ENTRIES];
     };
 
-    // Page Directory
-    typedef Page_Table Page_Directory;
+    typedef _Page_Table<PT_ENTRIES> Page_Table;
+    typedef _Page_Table<PD_ENTRIES> Page_Directory;
 
     // Chunk (for Segment)
     class Chunk
@@ -226,8 +227,20 @@ public:
     class Directory
     {
     public:
-        Directory() : _pd(reinterpret_cast<Page_Directory *>((calloc(4, WHITE) & ~(0x3fff)))), _free(true) { // each pd has up to 4096 entries and must be aligned with 16KB
-            for(unsigned int i = directory(PHY_MEM); i < PD_ENTRIES; i++)
+        Directory() : _free(true) {
+            Phy_Addr addr = calloc(7, WHITE);
+
+            if(addr & 0x3fff)
+                addr = (addr & ~0x3fff) + 0x4000;
+
+            _pd = addr;
+
+            Page_Directory * _master = current();
+
+            for(unsigned int i = directory(PHY_MEM); i < directory(APP_LOW); i++)
+                (*_pd)[i] = (*_master)[i];
+
+            for(unsigned int i = directory(SYS); i < PD_ENTRIES; i++)
                 (*_pd)[i] = (*_master)[i];
         }
 
@@ -420,7 +433,12 @@ public:
     static PD_Entry phy2pde(Phy_Addr frame) { return (frame) | Page_Flags::PD_FLAGS; }
     static Phy_Addr pde2phy(PD_Entry entry) { return (entry & ~Page_Flags::PD_MASK); }
 
-    static void flush_tlb() {} //TODO
+    static void flush_tlb() {
+        ASM("mcr   p15, 0, r0, c8, c7, 0");
+        CPU::dsb();
+        CPU::isb();
+    }
+
     static void flush_tlb(Log_Addr addr) {} //TODO
 
     static Log_Addr phy2log(Phy_Addr phy) { return Log_Addr((RAM_BASE == PHY_MEM) ? phy : (RAM_BASE > PHY_MEM) ? phy - (RAM_BASE - PHY_MEM) : phy + (PHY_MEM - RAM_BASE)); }

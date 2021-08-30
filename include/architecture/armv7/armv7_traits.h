@@ -19,6 +19,7 @@ template<> struct Traits<MMU>: public Traits<Build>
 {
     static const bool colorful = false;
     static const unsigned int COLORS = 1;
+    static const bool debugged = false;
 };
 
 template<> struct Traits<FPU>: public Traits<Build>
