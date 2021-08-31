@@ -851,12 +851,12 @@ void _entry()
                         ldr pc, fiq                                             \t\n\
                                                                                 \t\n\
         reset:          .word _reset                                            \t\n\
-        ui:             .word _undefined_instruction                            \t\n\
-        si:             .word _software_interrupt                               \t\n\
-        pa:             .word _prefetch_abort                                   \t\n\
-        da:             .word _data_abort                                       \t\n\
-        irq:            .word _int_entry                                        \t\n\
-        fiq:            .word _fiq                                              ");
+        ui:             .word 0x0                                               \t\n\
+        si:             .word 0x0                                               \t\n\
+        pa:             .word 0x0                                               \t\n\
+        da:             .word 0x0                                               \t\n\
+        irq:            .word 0x0                                               \t\n\
+        fiq:            .word 0x0                                               ");
 }
 
 void _reset()
