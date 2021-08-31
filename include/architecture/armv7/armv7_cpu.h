@@ -542,7 +542,7 @@ public:
         return usp;
     }
 
-    static int syscall(void * message);
+    static void syscall(void * message);
     static void syscalled();
 
     using Base::htole64;

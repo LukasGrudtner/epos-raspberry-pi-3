@@ -2,6 +2,8 @@
 #include <process.h>
 #include <system.h>
 
+#include <framework/message.h>
+
 // Bindings
 extern "C" {
     __USING_SYS;
@@ -14,5 +16,10 @@ extern "C" {
 
     // Utility-related methods that differ from kernel and user space.
     // OStream
-    void _print(const char * s) { Display::puts(s); }
+    void _print(const char * s) {
+        Message msg(Id(UTILITY_ID, 0), Message::PRINT, reinterpret_cast<unsigned int>(s));
+        msg.act();
+    }
+
+    void _syscall(void * m) { CPU::syscall(m); }
 }
