@@ -1,3 +1,6 @@
 *.o
 *.bin
 *.out
+img/
+etc/
+tools/
