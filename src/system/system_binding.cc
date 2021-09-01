@@ -2,7 +2,13 @@
 #include <process.h>
 #include <system.h>
 
-#include <framework/message.h>
+#include <framework/agent.h>
+
+__BEGIN_SYS
+
+Agent::Member Agent::_handlers[] = {&Agent::handle_utility};
+
+__END_SYS
 
 // Bindings
 extern "C" {
@@ -22,4 +28,5 @@ extern "C" {
     }
 
     void _syscall(void * m) { CPU::syscall(m); }
+    void _exec(void * m) { reinterpret_cast<Agent *>(m)->exec(); } 
 }

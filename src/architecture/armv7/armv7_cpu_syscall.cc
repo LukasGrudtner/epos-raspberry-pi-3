@@ -3,6 +3,8 @@
 #include <architecture/armv7/armv7_cpu.h>
 #include <machine/ic.h>
 
+#include <machine.h>
+
 __BEGIN_SYS
 
 void CPU::syscall(void * msg)

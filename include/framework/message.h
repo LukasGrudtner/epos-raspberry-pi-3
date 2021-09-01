@@ -15,7 +15,9 @@ private:
 
 public:
     enum {
-        PRINT
+        PRINT,
+
+        UNDEFINED = -1
     };
 
     typedef int Method;
@@ -27,6 +29,13 @@ public:
 public:
     template<typename ... Tn>
     Message(const Id & id, const Method & m, Tn && ... an): _id(id), _method(m), _link(this) { out(an ...); }
+
+    const Id & id() const { return _id; }
+
+    const Method & method() const { return _method; }
+
+    const Result & result() const { return _method; }
+    void result(const Result & r) { _method = r; }
 
     template<typename ... Tn>
     void in(Tn && ... an) {
@@ -40,12 +49,16 @@ public:
         SERIALIZE(_parms, index, an ...);
     }
 
-    void act() {
-        // const char * s;
-        // in(s);
-        // Display::puts(s);
-        _syscall(this);
-    };
+    void act() { _syscall(this); };
+
+    friend Debug & operator << (Debug & db, const Message & m) {
+        db << "{id=" << m._id << ",m=" << hex << m._method << ",p={"
+           << reinterpret_cast<void *>(*static_cast<const int *>(reinterpret_cast<const void *>(&m._parms[0]))) << ","
+           << reinterpret_cast<void *>(*static_cast<const int *>(reinterpret_cast<const void *>(&m._parms[4]))) << ","
+           << reinterpret_cast<void *>(*static_cast<const int *>(reinterpret_cast<const void *>(&m._parms[8]))) << "}}";
+        
+        return db;
+    }
 
 private:
     Id _id;

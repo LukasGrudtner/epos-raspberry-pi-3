@@ -6,6 +6,8 @@
 #include <machine/usb.h>
 #include <machine/gpio.h>
 
+#include <machine.h>
+
 extern "C" { void _int_entry() __attribute__ ((alias("_ZN4EPOS1S2IC5entryEv"))); }
 extern "C" { void _dispatch(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC8dispatchEj"))); }
 extern "C" { void _eoi(unsigned int) __attribute__ ((alias("_ZN4EPOS1S2IC3eoiEj"))); }
@@ -226,8 +228,6 @@ void IC::software_interrupt()
     db<IC>(ERR) << "Software interrupt" << endl;
 
     CPU::syscalled();
-
-    // Machine::panic();
 }
 
 void IC::prefetch_abort()
