@@ -1,10 +1,8 @@
 // EPOS System Scaffold and System Component Implementation
 
+#include <system.h>
 #include <utility/ostream.h>
 #include <utility/heap.h>
-
-#include <memory.h>
-#include <system.h>
 
 __BEGIN_SYS
 

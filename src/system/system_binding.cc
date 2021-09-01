@@ -22,6 +22,7 @@ extern "C" {
 
     // Utility-related methods that differ from kernel and user space.
     // OStream
+
     void _print(const char * s) {
         Message msg(Id(UTILITY_ID, 0), Message::PRINT, reinterpret_cast<unsigned int>(s));
         msg.act();
