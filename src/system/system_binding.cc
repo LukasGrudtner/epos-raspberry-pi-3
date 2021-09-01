@@ -1,16 +1,8 @@
+// EPOS System Binding
+
 #include <machine.h>
 #include <process.h>
-#include <system.h>
 
-#include <framework/agent.h>
-
-__BEGIN_SYS
-
-Agent::Member Agent::_handlers[] = {&Agent::handle_utility};
-
-__END_SYS
-
-// Bindings
 extern "C" {
     __USING_SYS;
 
@@ -22,12 +14,29 @@ extern "C" {
 
     // Utility-related methods that differ from kernel and user space.
     // OStream
+    void _print(const char * s) { Display::puts(s); }
+    static volatile int _print_lock = -1;
+    void _print_preamble() {
+        static char tag[] = "<0>: ";
 
-    void _print(const char * s) {
-        Message msg(Id(UTILITY_ID, 0), Message::PRINT, reinterpret_cast<unsigned int>(s));
-        msg.act();
+        int me = CPU::id();
+        int last = CPU::cas(_print_lock, -1, me);
+        for(int i = 0, owner = last; (i < 10) && (owner != me); i++, owner = CPU::cas(_print_lock, -1, me));
+        if(last != me) {
+            tag[1] = '0' + CPU::id();
+            _print(tag);
+        }
     }
+    void _print_trailler(bool error) {
+        static char tag[] = " :<0>";
 
-    void _syscall(void * m) { CPU::syscall(m); }
-    void _exec(void * m) { reinterpret_cast<Agent *>(m)->exec(); } 
+        if(_print_lock != -1) {
+            tag[3] = '0' + CPU::id();
+            _print(tag);
+
+            _print_lock = -1;
+        }
+        if(error)
+            _panic();
+    }
 }
